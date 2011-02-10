@@ -4,7 +4,7 @@ Plugin Name: Code Prettify
 Plugin URI: http://www.ooso.net/code-prettify
 Description: This plugin using <a href="http://code.google.com/p/google-code-prettify/">google-code-prettify</a> to highlight source code in your posts. 
 Author: Volcano
-Version: 0.3
+Version: 0.4
 Author URI: http://www.ooso.net
 */
 
@@ -20,3 +20,4 @@ function cp_filter($content) {
 }
 
 add_filter('the_content', 'cp_filter', 0);
+add_filter('comment_text', 'cp_filter', 0);
