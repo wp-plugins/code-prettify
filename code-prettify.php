@@ -1,23 +1,46 @@
 <?php
 /*
-Plugin Name: Code Prettify
-Plugin URI: http://www.ooso.net/code-prettify
-Description: This plugin using <a href="http://code.google.com/p/google-code-prettify/">google-code-prettify</a> to highlight source code in your posts. 
-Author: Volcano
-Version: 0.4
-Author URI: http://www.ooso.net
+	Plugin Name: Code Prettify
+	Plugin URI: https://github.com/kasparsd/code-prettify
+	GitHub URI: https://github.com/kasparsd/code-prettify
+	Description: Automatic code syntax highlighter
+	Version: 1.3.3
+	Author: Kaspars Dambis
+	Author URI: http://kaspars.net
 */
 
-wp_register_style('code-prettify', WP_PLUGIN_URL . '/code-prettify/prettify.css');
-wp_register_script('code-prettify', WP_PLUGIN_URL . '/code-prettify/prettify.js', false, false, true);
+add_action( 'wp_enqueue_scripts', 'add_prettify_scripts' );
 
-wp_enqueue_style('code-prettify');
-wp_enqueue_script('code-prettify');
+function add_prettify_scripts() {
+	$ver = '1.3.3';
 
-function cp_filter($content) {
-	return preg_replace("|<pre(.*?)><code>(.*?)</code></pre>|ise", 
-		"'<pre$1><code>'.str_replace(array('<', '>'), array('&lt;', '&gt;'), stripslashes(trim('$2'))).'</code></pre>'", $content);
+	if ( defined( 'WP_DEBUG' ) && WP_DEBUG )
+		$script = 'run_prettify-src.js';
+	else
+		$script = 'run_prettify.js';
+
+	$script_url = plugins_url( sprintf( 'prettify/%s', $script ), __FILE__ );
+	$skin = apply_filters( 'prettify_skin', null );
+
+	if ( $skin )
+		$script_url = add_query_arg( 'skin', $skin, $script_url );
+
+	$script_url = apply_filters( 'code-prettify-js-url', $script_url );
+
+	wp_enqueue_script(
+		'code-prettify',
+		$script_url,
+		false,
+		$ver,
+		true
+	);
+
+	wp_localize_script(
+		'code-prettify',
+		'code_prettify_settings',
+		array(
+			'base_url' => plugins_url( 'prettify', __FILE__ )
+		)
+	);
 }
 
-add_filter('the_content', 'cp_filter', 0);
-add_filter('comment_text', 'cp_filter', 0);
